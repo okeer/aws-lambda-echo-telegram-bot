@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  telegram-bot
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+
+Resources:
+  TelegramBotFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: telegram_bot/
+      Handler: app.webhook
+      Runtime: python3.7
+      Events:
+        TelegramAPI:
+          Type: Api
+          Properties:
+            Path: /telegram_bot
+            Method: POST
+      Environment:
+        Variables:
+          api_key: NOT_DEF
+
+Outputs:
+  TelegramBotApi:
+    Description: "API Gateway endpoint URL for Prod stage for TelegramBotFunction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/telegram_bot/"
+  TelegramBotFunction:
+    Description: "TelegramBotFunction ARN"
+    Value: !GetAtt TelegramBotFunction.Arn
+  TelegramBotFunctionIamRole:
+    Description: "Implicit IAM Role created for TelegramBotFunction"
+    Value: !GetAtt TelegramBotFunctionRole.Arn
