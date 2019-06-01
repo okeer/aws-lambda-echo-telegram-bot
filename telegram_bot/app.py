@@ -1,5 +1,4 @@
 import json
-import os
 import traceback
 
 from telegram import Bot, Update
@@ -7,10 +6,14 @@ from telegram.ext import Dispatcher
 
 from helpers.handlers import *
 
-bot = Bot(token=os.environ['api_key'])
+api_key = os.environ['api_key']
+
+bot = Bot(token=api_key)
+handler = CustomConvHandler()
+
 
 dispatcher = Dispatcher(bot, None)
-dispatcher.add_handler(CustomConvHandler())
+dispatcher.add_handler(handler)
 
 
 def webhook(event, context):

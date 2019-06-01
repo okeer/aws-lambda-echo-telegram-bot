@@ -1,9 +1,20 @@
 from telegram.ext import ConversationHandler, MessageHandler, Filters, CommandHandler
 from resources.constants import *
+from helpers.classifierwrapper import ClassifierWrapper
+import os
+import io
+
+from dnnclassifier.utils.DataLoader import image_to_np_array
 
 
 class CustomConvHandler(ConversationHandler):
     SELECTOR = 0
+    WRAPPER = ClassifierWrapper(os.environ["MODEL"])
+
+    @staticmethod
+    def __convert_photosize_to_file(photosize):
+
+        return bytes
 
     @staticmethod
     def start(bot, update):
@@ -12,7 +23,12 @@ class CustomConvHandler(ConversationHandler):
 
     @staticmethod
     def photo(bot, update):
-        bot.send_photo(chat_id=update.message.chat.id, photo=update.message.photo[-1])
+        bytes = io.BytesIO()
+        file = bot.get_file(update.message.photo[-1].file_id)
+        file.download(out=bytes)
+        image = image_to_np_array(bytes, 64, 64)/255.
+        cls = CustomConvHandler.WRAPPER.classify(image)
+        update.message.reply_text("Looks like this is a cat with {0} probability".format(cls))
         return CustomConvHandler.SELECTOR
 
     @staticmethod
