@@ -12,7 +12,7 @@ class CustomConvHandler(ConversationHandler):
 
     @staticmethod
     def photo(bot, update):
-        bot.send_photo(chat_id=update.message.chat.id, photo=max(update.message.photo, key=lambda x: x.file_size))
+        bot.send_photo(chat_id=update.message.chat.id, photo=update.message.photo[-1])
         return CustomConvHandler.SELECTOR
 
     @staticmethod
