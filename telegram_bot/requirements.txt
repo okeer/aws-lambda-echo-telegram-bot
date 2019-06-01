@@ -1,1 +1,2 @@
 python-telegram-bot
+git+https://github.com/okeer/dnn-classifier.git@multilayer-nn#nn-classifier
