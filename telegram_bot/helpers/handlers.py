@@ -1,54 +1,28 @@
-from telegram.ext import ConversationHandler, MessageHandler, Filters, CommandHandler
-from resources.constants import *
+from dnnclassifier.utils.DataLoader import image_to_np_array
 from helpers.classifierwrapper import ClassifierWrapper
+
+import numpy as np
 import os
 import io
 
-from dnnclassifier.utils.DataLoader import image_to_np_array
+
+wrapper = ClassifierWrapper(os.environ["MODEL"])
 
 
-class CustomConvHandler(ConversationHandler):
-    SELECTOR = 0
-    WRAPPER = ClassifierWrapper(os.environ["MODEL"])
+def download_file(bot, file_id):
+    file_bytes = io.BytesIO()
+    file = bot.get_file(file_id)
+    file.download(out=file_bytes)
+    return file_bytes
 
-    @staticmethod
-    def __convert_photosize_to_file(photosize):
 
-        return bytes
+def convert_bytes_to_image_array(file_bytes):
+    return image_to_np_array(file_bytes, 64, 64)/255.
 
-    @staticmethod
-    def start(bot, update):
-        update.message.reply_text(START_MESSAGE)
-        return CustomConvHandler.SELECTOR
 
-    @staticmethod
-    def photo(bot, update):
-        bytes = io.BytesIO()
-        file = bot.get_file(update.message.photo[-1].file_id)
-        file.download(out=bytes)
-        image = image_to_np_array(bytes, 64, 64)/255.
-        cls = CustomConvHandler.WRAPPER.classify(image)
-        update.message.reply_text("Looks like this is a cat with {0} probability".format(cls))
-        return CustomConvHandler.SELECTOR
+def photo(bot, update):
+    file_bytes = download_file(bot, update.message.photo[-1].file_id)
+    image = convert_bytes_to_image_array(file_bytes)
 
-    @staticmethod
-    def text(bot, update):
-        update.message.reply_text(update.message.text)
-        return CustomConvHandler.SELECTOR
-
-    @staticmethod
-    def cancel(bot, update):
-        update.message.reply_text(CANCEL_MESSAGE)
-        return ConversationHandler.END
-
-    def __init__(self):
-        super().__init__(
-            entry_points=[CommandHandler('start', CustomConvHandler.start)],
-
-            states={
-                CustomConvHandler.SELECTOR: [MessageHandler(Filters.photo, CustomConvHandler.photo),
-                                             MessageHandler(Filters.text, CustomConvHandler.text)]
-            },
-
-            fallbacks=[CommandHandler('cancel', CustomConvHandler.cancel)]
-        )
+    probability = wrapper.classify(image)
+    update.message.reply_text(f"This is a cat with {np.squeeze(probability):.2f} probability")

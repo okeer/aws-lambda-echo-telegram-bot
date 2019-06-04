@@ -2,14 +2,14 @@ import json
 import traceback
 
 from telegram import Bot, Update
-from telegram.ext import Dispatcher
+from telegram.ext import Dispatcher, MessageHandler, Filters
 
 from helpers.handlers import *
 
 api_key = os.environ['api_key']
 
 bot = Bot(token=api_key)
-handler = CustomConvHandler()
+handler = MessageHandler(Filters.photo, photo)
 
 
 dispatcher = Dispatcher(bot, None)
