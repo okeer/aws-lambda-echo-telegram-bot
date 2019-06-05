@@ -1,4 +1,5 @@
-from dnnclassifier.utils.DataLoader import image_to_np_array
+import numdl
+from numdl.utils.data import image_to_np_array
 from helpers.classifierwrapper import ClassifierWrapper
 
 import numpy as np
