@@ -1,54 +1,16 @@
-from telegram.ext import ConversationHandler, MessageHandler, Filters, CommandHandler
-from resources.constants import *
-from helpers.classifierwrapper import ClassifierWrapper
-import os
-import io
-
-from dnnclassifier.utils.DataLoader import image_to_np_array
+from helpers.converters import download_file, compose_reply
 
 
-class CustomConvHandler(ConversationHandler):
-    SELECTOR = 0
-    WRAPPER = ClassifierWrapper(os.environ["MODEL"])
+def on_aws_cmd_handler(bot, update):
+    bot.switch_backend()
 
-    @staticmethod
-    def __convert_photosize_to_file(photosize):
 
-        return bytes
+def on_photo_received_handler(bot, update):
+    file_bytes = download_file(bot, update.message.photo[-1].file_id)
+    data = bot.current_backend.classify(file_bytes)
 
-    @staticmethod
-    def start(bot, update):
-        update.message.reply_text(START_MESSAGE)
-        return CustomConvHandler.SELECTOR
+    repl = "Nice image! Looks like it has:\n"
+    repl += compose_reply(data)
+    repl += f">>> Brought to you by {type(bot.current_backend).NAME} backend"
 
-    @staticmethod
-    def photo(bot, update):
-        bytes = io.BytesIO()
-        file = bot.get_file(update.message.photo[-1].file_id)
-        file.download(out=bytes)
-        image = image_to_np_array(bytes, 64, 64)/255.
-        cls = CustomConvHandler.WRAPPER.classify(image)
-        update.message.reply_text("Looks like this is a cat with {0} probability".format(cls))
-        return CustomConvHandler.SELECTOR
-
-    @staticmethod
-    def text(bot, update):
-        update.message.reply_text(update.message.text)
-        return CustomConvHandler.SELECTOR
-
-    @staticmethod
-    def cancel(bot, update):
-        update.message.reply_text(CANCEL_MESSAGE)
-        return ConversationHandler.END
-
-    def __init__(self):
-        super().__init__(
-            entry_points=[CommandHandler('start', CustomConvHandler.start)],
-
-            states={
-                CustomConvHandler.SELECTOR: [MessageHandler(Filters.photo, CustomConvHandler.photo),
-                                             MessageHandler(Filters.text, CustomConvHandler.text)]
-            },
-
-            fallbacks=[CommandHandler('cancel', CustomConvHandler.cancel)]
-        )
+    update.message.reply_text(repl)
