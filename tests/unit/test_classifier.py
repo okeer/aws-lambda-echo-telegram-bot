@@ -5,7 +5,7 @@ import numpy as np
 
 from dnnclassifier.utils.DataLoader import image_to_np_array
 
-from helpers.classifierwrapper import ClassifierWrapper
+from helpers.mlwrappers import NumdlWrapper
 
 
 class ClassifierTestCase(unittest.TestCase):
@@ -13,7 +13,7 @@ class ClassifierTestCase(unittest.TestCase):
         try:
             with open(os.environ["IMAGE"], 'rb') as image_file:
                 image = image_to_np_array(image_file, 64, 64)/255.
-                rc = ClassifierWrapper(os.environ["MODEL"])
+                rc = NumdlWrapper(os.environ["MODEL"])
                 cls = rc.classify(image)
 
                 self.assertEqual(1, np.squeeze(cls))

@@ -1,29 +1,16 @@
-import numdl
-from numdl.utils.data import image_to_np_array
-from helpers.classifierwrapper import ClassifierWrapper
-
-import numpy as np
-import os
-import io
+from helpers.converters import download_file, compose_reply
 
 
-wrapper = ClassifierWrapper(os.environ["MODEL"])
+def on_aws_cmd_handler(bot, update):
+    bot.switch_backend()
 
 
-def download_file(bot, file_id):
-    file_bytes = io.BytesIO()
-    file = bot.get_file(file_id)
-    file.download(out=file_bytes)
-    return file_bytes
-
-
-def convert_bytes_to_image_array(file_bytes):
-    return image_to_np_array(file_bytes, 64, 64)/255.
-
-
-def photo(bot, update):
+def on_photo_received_handler(bot, update):
     file_bytes = download_file(bot, update.message.photo[-1].file_id)
-    image = convert_bytes_to_image_array(file_bytes)
+    data = bot.current_backend.classify(file_bytes)
 
-    probability = wrapper.classify(image)
-    update.message.reply_text(f"This is a cat with {np.squeeze(probability):.2f} probability")
+    repl = "Nice image! Looks like it has:\n"
+    repl += compose_reply(data)
+    repl += f">>> Brought to you by {type(bot.current_backend).NAME} backend"
+
+    update.message.reply_text(repl)

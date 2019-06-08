@@ -14,6 +14,13 @@ Resources:
       CodeUri: telegram_bot/
       Handler: app.webhook
       Runtime: python3.7
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'rekognition:DetectLabels'
+              Resource:
+                - '*'
       Events:
         TelegramAPI:
           Type: Api
@@ -23,7 +30,6 @@ Resources:
       Environment:
         Variables:
           api_key: NOT_DEF
-          MODEL: 'resources/model.pickle'
 
 Outputs:
   TelegramBotApi:
