@@ -13,10 +13,11 @@ def convert_bytes_to_image_array(file_bytes):
     return image_to_np_array(file_bytes, 64, 64)/255.
 
 
-def compose_reply(data):
-    repl = ''
+def compose_reply(data, backend):
+    repl = "Nice image! Looks like it has:\n"
 
     for label in data:
         repl += "a {Name} --- with {Confidence:.2f} confidence%\n".format(**label)
 
+    repl += f">>> Brought to you by {backend}"
     return repl

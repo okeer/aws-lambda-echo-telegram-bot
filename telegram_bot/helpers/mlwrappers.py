@@ -22,7 +22,7 @@ class NumdlWrapper(ClassifierWrapper):
         return [{'Name': 'cat', 'Confidence': confidence}]
 
 
-class AWSRecognizer(ClassifierWrapper):
+class AWSRecognizerWrapper(ClassifierWrapper):
     NAME = 'AWS Rekognition'
 
     def __init__(self):
