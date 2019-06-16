@@ -3,10 +3,10 @@ import traceback
 import os
 
 from telegram import Update
-from telegram.ext import Dispatcher, MessageHandler, Filters, CallbackQueryHandler
+from telegram.ext import Dispatcher, MessageHandler, Filters, CallbackQueryHandler, CommandHandler
 
 from helpers.botext import BotExt
-from helpers.handlers import on_photo_received_handler, on_backend_select_callback_handler
+from helpers.handlers import on_photo_received_handler, on_backend_select_callback_handler, on_help_cmd_handler
 from helpers.mlwrappers import AWSRecognizerWrapper, NumdlWrapper
 
 api_key = os.environ['api_key']
@@ -14,6 +14,7 @@ api_key = os.environ['api_key']
 bot = BotExt(token=api_key, wrappers=[AWSRecognizerWrapper(), NumdlWrapper('./resources/model.pickle')])
 dispatcher = Dispatcher(bot, None)
 
+dispatcher.add_handler(CommandHandler('help', on_help_cmd_handler))
 dispatcher.add_handler(MessageHandler(Filters.photo, on_photo_received_handler))
 dispatcher.add_handler(CallbackQueryHandler(on_backend_select_callback_handler, pattern='.*backend'))
 

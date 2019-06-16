@@ -3,6 +3,12 @@ from helpers.converters import download_file, compose_reply
 from helpers.mlwrappers import AWSRecognizerWrapper, NumdlWrapper
 
 
+def on_help_cmd_handler(bot, update):
+    update.message.reply_text("This bot analyzes images sent to it using supported backends. It will send the list of "
+                              "recognized objects.\nTo start just send an image, the later is quite straightforward",
+                              parse_mode=ParseMode.MARKDOWN)
+
+
 def on_photo_received_handler(bot, update):
     bot.images_ids_for_chats[update.message.chat_id] = update.message.photo[-1].file_id
     update.message.reply_text("Select backend",
