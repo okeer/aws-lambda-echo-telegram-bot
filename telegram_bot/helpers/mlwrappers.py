@@ -18,7 +18,7 @@ class NumdlWrapper(ClassifierWrapper):
 
     def classify(self, image_bytes):
         image = convert_bytes_to_image_array(image_bytes)
-        confidence = np.squeeze(self.model.predict(image))
+        confidence = np.squeeze(self.model.predict(image)) * 100
         return [{'Name': 'cat', 'Confidence': confidence}]
 
 
