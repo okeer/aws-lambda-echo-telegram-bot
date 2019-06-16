@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from helpers.converters import download_file, compose_reply
 from helpers.mlwrappers import AWSRecognizerWrapper, NumdlWrapper
 
@@ -23,7 +23,7 @@ def on_backend_select_callback_handler(bot, update):
     file_bytes = download_file(bot, bot.images_ids_for_chats[query.message.chat_id])
     data = current_backend.classify(file_bytes)
 
-    query.edit_message_text(text=compose_reply(data, query.data))
+    query.edit_message_text(text=compose_reply(data, query.data), parse_mode=ParseMode.MARKDOWN)
 
 
 def backend_menu_keyboard():

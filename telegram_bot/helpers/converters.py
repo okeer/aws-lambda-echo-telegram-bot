@@ -14,10 +14,10 @@ def convert_bytes_to_image_array(file_bytes):
 
 
 def compose_reply(data, backend):
-    repl = "Nice image! Looks like it has:\n"
+    repl = "Classified objects:\n\n"
 
     for label in data:
-        repl += "a {Name} --- with {Confidence:.2f} confidence%\n".format(**label)
+        repl += "**{Confidence:.2f}%** --- `{Name}`\n\n".format(**label)
 
-    repl += f">>> Brought to you by {backend}"
+    repl += f"Served by **{backend}**"
     return repl
